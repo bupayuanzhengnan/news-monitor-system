@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2>数据仪表盘</h2>
+        <p>查看关键词舆情监控的整体情况</p>
+    </div>
+</div>
+
+<div class="row mt-3">
+    <!-- 统计卡片 -->
+    <div class="col-md-3">
+        <div class="stat-card blue">
+            <div class="stat-value">{{ stats.total_news }}</div>
+            <div class="stat-label">监控总数</div>
+            <div class="stat-change">
+                {% if stats.news_change > 0 %}
+                <span class="text-white">↑ {{ stats.news_change }}%</span>
+                {% elif stats.news_change < 0 %}
+                <span class="text-white">↓ {{ stats.news_change }}%</span>
+                {% else %}
+                <span class="text-white">--</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="stat-card green">
+            <div class="stat-value">{{ stats.active_keywords }}</div>
+            <div class="stat-label">活跃关键词</div>
+            <div class="stat-change">
+                <span class="text-white">{{ stats.total_keywords }} 总数</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="stat-card orange">
+            <div class="stat-value">{{ stats.total_platforms }}</div>
+            <div class="stat-label">监控平台</div>
+            <div class="stat-change">
+                <span class="text-white">{{ stats.active_platforms }} 活跃</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="stat-card red">
+            <div class="stat-value">{{ stats.total_interactions }}</div>
+            <div class="stat-label">互动总数</div>
+            <div class="stat-change">
+                {% if stats.interaction_change > 0 %}
+                <span class="text-white">↑ {{ stats.interaction_change }}%</span>
+                {% elif stats.interaction_change < 0 %}
+                <span class="text-white">↓ {{ stats.interaction_change }}%</span>
+                {% else %}
+                <span class="text-white">--</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <!-- 趋势图表 -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-graph-up"></i> 舆情趋势分析图
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="trendChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 情感分析图表 -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-pie-chart"></i> 舆情情感分布
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="sentimentChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <!-- 平台分布图表 -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-diagram-3"></i> 平台来源分布
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="platformChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 互动数据图表 -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-bar-chart"></i> 互动数据分析
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="interactionChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <!-- 热门话题词云 -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-cloud"></i> 热门话题词云
+            </div>
+            <div class="card-body">
+                <div class="tag-cloud">
+                    <img src="{{ wordcloud_path }}" class="img-fluid" alt="热门话题词云">
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 热门新闻列表 -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-newspaper"></i> 热门新闻
+            </div>
+            <div class="card-body">
+                <div class="list-group">
+                    {% for news in hot_news %}
+                    <div class="news-item">
+                        <div class="news-title">{{ news.title }}</div>
+                        <div class="news-meta">
+                            <span class="news-platform platform-{{ news.platform_type }}">{{ news.platform }}</span>
+                            <span class="news-time">{{ news.publish_time }}</span>
+                        </div>
+                        <div class="news-stats mt-1">
+                            <small class="me-2">
+                                <i class="bi bi-eye"></i> {{ news.read_count }}
+                            </small>
+                            <small class="me-2">
+                                <i class="bi bi-chat"></i> {{ news.comment_count }}
+                            </small>
+                            <small>
+                                <i class="bi bi-hand-thumbs-up"></i> {{ news.like_count }}
+                            </small>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <!-- 地域分布图 -->
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-geo-alt"></i> 舆情地域分布
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <img src="{{ region_map_path }}" class="img-fluid" alt="舆情地域分布">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // 图表数据
+    const trendChartData = {
+        dates: {{ trend_data.dates|tojson }},
+        counts: {{ trend_data.counts|tojson }}
+    };
+    
+    const sentimentData = {
+        positive: {{ sentiment_data.positive }},
+        neutral: {{ sentiment_data.neutral }},
+        negative: {{ sentiment_data.negative }}
+    };
+    
+    const platformData = {
+        labels: {{ platform_data.labels|tojson }},
+        values: {{ platform_data.values|tojson }}
+    };
+    
+    const interactionData = {
+        labels: {{ interaction_data.labels|tojson }},
+        values: {{ interaction_data.values|tojson }}
+    };
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        // 初始化图表
+        initCharts();
+    });
+</script>
+{% endblock %}

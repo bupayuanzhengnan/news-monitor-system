@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2>关键词管理</h2>
+        <p>在这里添加和管理您要监控的关键词</p>
+    </div>
+</div>
+
+<div class="row mt-3">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">添加新关键词</div>
+            <div class="card-body">
+                <form id="addKeywordForm" action="/keywords/add" method="post">
+                    <div class="mb-3">
+                        <label for="newKeyword" class="form-label">关键词</label>
+                        <input type="text" class="form-control" id="newKeyword" name="keyword" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="keywordCategory" class="form-label">分类</label>
+                        <input type="text" class="form-control" id="keywordCategory" name="category" value="默认分类">
+                    </div>
+                    <button type="button" class="btn btn-primary" onclick="addKeyword()">添加关键词</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">关键词列表</div>
+            <div class="card-body">
+                {% if keywords %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>关键词</th>
+                                <th>分类</th>
+                                <th>状态</th>
+                                <th>创建时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for keyword in keywords %}
+                            <tr>
+                                <td>{{ keyword.id }}</td>
+                                <td>{{ keyword.keyword }}</td>
+                                <td>{{ keyword.category }}</td>
+                                <td>
+                                    {% if keyword.status == 'active' %}
+                                    <span class="badge bg-success">活跃</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">禁用</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ keyword.created_at }}</td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <form id="deleteKeywordForm_{{ keyword.id }}" action="/keywords/delete" method="post" style="display: inline;">
+                                            <input type="hidden" name="keyword" value="{{ keyword.keyword }}">
+                                            <button type="button" class="btn btn-sm btn-danger" onclick="deleteKeyword('{{ keyword.id }}')">删除</button>
+                                        </form>
+                                        {% if keyword.status == 'active' %}
+                                        <form action="/keywords/update_status" method="post" style="display: inline;">
+                                            <input type="hidden" name="keyword" value="{{ keyword.keyword }}">
+                                            <input type="hidden" name="status" value="inactive">
+                                            <button type="submit" class="btn btn-sm btn-warning">禁用</button>
+                                        </form>
+                                        {% else %}
+                                        <form action="/keywords/update_status" method="post" style="display: inline;">
+                                            <input type="hidden" name="keyword" value="{{ keyword.keyword }}">
+                                            <input type="hidden" name="status" value="active">
+                                            <button type="submit" class="btn btn-sm btn-success">启用</button>
+                                        </form>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    暂无关键词，请添加新的关键词进行监控。
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

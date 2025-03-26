@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2>平台管理</h2>
+        <p>在这里添加和管理您要监控的新闻平台</p>
+    </div>
+</div>
+
+<div class="row mt-3">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">添加新平台</div>
+            <div class="card-body">
+                <form id="addPlatformForm" action="/platforms/add" method="post">
+                    <div class="mb-3">
+                        <label for="platformName" class="form-label">平台名称</label>
+                        <input type="text" class="form-control" id="platformName" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="platformType" class="form-label">平台类型</label>
+                        <select class="form-select" id="platformType" name="type" required>
+                            <option value="tencent">腾讯新闻</option>
+                            <option value="toutiao">今日头条</option>
+                            <option value="weixin">微信公众号</option>
+                            <option value="weibo">微博</option>
+                        </select>
+                    </div>
+                    <button type="button" class="btn btn-primary" onclick="addPlatform()">添加平台</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">平台列表</div>
+            <div class="card-body">
+                {% if platforms %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>平台名称</th>
+                                <th>平台类型</th>
+                                <th>状态</th>
+                                <th>创建时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for platform in platforms %}
+                            <tr>
+                                <td>{{ platform.id }}</td>
+                                <td>{{ platform.name }}</td>
+                                <td>{{ platform.type }}</td>
+                                <td>
+                                    {% if platform.status == 'active' %}
+                                    <span class="badge bg-success">活跃</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">禁用</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ platform.created_at }}</td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <form id="deletePlatformForm_{{ platform.id }}" action="/platforms/delete" method="post" style="display: inline;">
+                                            <input type="hidden" name="platform_id" value="{{ platform.id }}">
+                                            <button type="button" class="btn btn-sm btn-danger" onclick="deletePlatform('{{ platform.id }}')">删除</button>
+                                        </form>
+                                        {% if platform.status == 'active' %}
+                                        <form action="/platforms/update_status" method="post" style="display: inline;">
+                                            <input type="hidden" name="platform_id" value="{{ platform.id }}">
+                                            <input type="hidden" name="status" value="inactive">
+                                            <button type="submit" class="btn btn-sm btn-warning">禁用</button>
+                                        </form>
+                                        {% else %}
+                                        <form action="/platforms/update_status" method="post" style="display: inline;">
+                                            <input type="hidden" name="platform_id" value="{{ platform.id }}">
+                                            <input type="hidden" name="status" value="active">
+                                            <button type="submit" class="btn btn-sm btn-success">启用</button>
+                                        </form>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    暂无平台，请添加新的平台进行监控。
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

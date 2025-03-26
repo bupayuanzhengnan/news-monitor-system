@@ -1,0 +1,193 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2>舆情分析</h2>
+        <p>分析关键词的舆情趋势和热度变化</p>
+    </div>
+</div>
+
+<div class="row mt-3">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">分析设置</div>
+            <div class="card-body">
+                <form id="analysisForm" action="/analysis" method="get">
+                    <div class="mb-3">
+                        <label for="keywordSelect" class="form-label">选择关键词</label>
+                        <select class="form-select" id="keywordSelect" name="keyword" required>
+                            <option value="">请选择关键词</option>
+                            {% for keyword in keywords %}
+                            <option value="{{ keyword.keyword }}" {% if selected_keyword == keyword.keyword %}selected{% endif %}>{{ keyword.keyword }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="daysSelect" class="form-label">分析时间范围</label>
+                        <select class="form-select" id="daysSelect" name="days">
+                            <option value="7" {% if days == 7 %}selected{% endif %}>最近7天</option>
+                            <option value="14" {% if days == 14 %}selected{% endif %}>最近14天</option>
+                            <option value="30" {% if days == 30 %}selected{% endif %}>最近30天</option>
+                            <option value="90" {% if days == 90 %}selected{% endif %}>最近90天</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">开始分析</button>
+                </form>
+            </div>
+        </div>
+        
+        {% if analysis_result %}
+        <div class="card mt-3">
+            <div class="card-header">热度变化</div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6>24小时变化</h6>
+                        <div class="fs-4 {% if analysis_result.heat_change.24h_change > 0 %}text-success{% elif analysis_result.heat_change.24h_change < 0 %}text-danger{% endif %}">
+                            {{ analysis_result.heat_change.24h_change }}
+                            {% if analysis_result.heat_change.24h_change > 0 %}↑{% elif analysis_result.heat_change.24h_change < 0 %}↓{% endif %}
+                        </div>
+                        <small class="text-muted">{{ analysis_result.heat_change.24h_change_rate|round(2) }}%</small>
+                    </div>
+                    <div>
+                        <h6>7天变化</h6>
+                        <div class="fs-4 {% if analysis_result.heat_change.7d_change > 0 %}text-success{% elif analysis_result.heat_change.7d_change < 0 %}text-danger{% endif %}">
+                            {{ analysis_result.heat_change.7d_change }}
+                            {% if analysis_result.heat_change.7d_change > 0 %}↑{% elif analysis_result.heat_change.7d_change < 0 %}↓{% endif %}
+                        </div>
+                        <small class="text-muted">{{ analysis_result.heat_change.7d_change_rate|round(2) }}%</small>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <h6>趋势方向</h6>
+                    <div class="alert {% if '上升' in analysis_result.heat_change.trend_direction %}alert-success{% elif '下降' in analysis_result.heat_change.trend_direction %}alert-danger{% else %}alert-info{% endif %}">
+                        {{ analysis_result.heat_change.trend_direction }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <div class="col-md-8">
+        {% if analysis_result %}
+        <div class="card">
+            <div class="card-header">趋势分析</div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <img src="{{ analysis_result.trend_chart_path }}" class="img-fluid" alt="趋势图表">
+                </div>
+                
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <h5>情感分析</h5>
+                        <div class="chart-container">
+                            <img src="{{ analysis_result.sentiment_chart_path }}" class="img-fluid" alt="情感分析图表">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>平台分布</h5>
+                        <div class="chart-container">
+                            <img src="{{ analysis_result.platform_chart_path }}" class="img-fluid" alt="平台分布图表">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row mt-4">
+                    <div class="col-md-12">
+                        <h5>话题词云</h5>
+                        <div class="chart-container">
+                            <img src="{{ analysis_result.wordcloud_path }}" class="img-fluid" alt="词云图">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row mt-4">
+                    <div class="col-md-12">
+                        <h5>互动数据分析</h5>
+                        <div class="chart-container">
+                            <img src="{{ analysis_result.interaction_chart_path }}" class="img-fluid" alt="互动数据图表">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">话题起源分析</div>
+            <div class="card-body">
+                {% if analysis_result.origin_analysis.earliest_news %}
+                <div class="mb-3">
+                    <h6>最早出现时间</h6>
+                    <p>{{ analysis_result.origin_analysis.earliest_date }}</p>
+                </div>
+                <div class="mb-3">
+                    <h6>最早出现平台</h6>
+                    <p>{{ analysis_result.origin_analysis.origin_platform }}</p>
+                </div>
+                <div class="mb-3">
+                    <h6>最早相关新闻</h6>
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ analysis_result.origin_analysis.earliest_news.title }}</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">{{ analysis_result.origin_analysis.earliest_news.platform }} - {{ analysis_result.origin_analysis.earliest_news.publish_time }}</h6>
+                            <p class="card-text">{{ analysis_result.origin_analysis.earliest_news.summary }}</p>
+                            <a href="{{ analysis_result.origin_analysis.earliest_news.url }}" class="card-link" target="_blank">查看原文</a>
+                        </div>
+                    </div>
+                </div>
+                {% if analysis_result.origin_analysis.possible_causes %}
+                <div class="mb-3">
+                    <h6>可能的起因</h6>
+                    <ul class="list-group">
+                        {% for cause in analysis_result.origin_analysis.possible_causes %}
+                        <li class="list-group-item">{{ cause }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+                {% else %}
+                <div class="alert alert-info">
+                    无法确定话题起源，可能是数据不足或话题已存在较长时间。
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">分析结论</div>
+            <div class="card-body">
+                <pre class="conclusion-text">{{ analysis_result.conclusion }}</pre>
+            </div>
+        </div>
+        {% else %}
+        <div class="card">
+            <div class="card-body">
+                <div class="alert alert-info">
+                    请选择关键词和时间范围，点击"开始分析"按钮进行舆情分析。
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 当关键词选择变化时自动提交表单
+        const keywordSelect = document.getElementById('keywordSelect');
+        if (keywordSelect) {
+            keywordSelect.addEventListener('change', function() {
+                if (this.value) {
+                    document.getElementById('analysisForm').submit();
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}
