@@ -1,0 +1,152 @@
+body {
+    font-family: 'Microsoft YaHei', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+}
+
+.navbar-brand {
+    font-weight: bold;
+}
+
+.card {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    border-radius: 8px;
+}
+
+.card-header {
+    font-weight: bold;
+    background-color: #f8f9fa;
+}
+
+.stat-card {
+    text-align: center;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    color: #fff;
+}
+
+.stat-card .stat-value {
+    font-size: 2.5rem;
+    font-weight: bold;
+}
+
+.stat-card .stat-label {
+    font-size: 1rem;
+    opacity: 0.8;
+}
+
+.stat-card .stat-change {
+    font-size: 0.9rem;
+    margin-top: 5px;
+}
+
+.stat-card.blue {
+    background-color: #007bff;
+}
+
+.stat-card.green {
+    background-color: #28a745;
+}
+
+.stat-card.orange {
+    background-color: #fd7e14;
+}
+
+.stat-card.red {
+    background-color: #dc3545;
+}
+
+.chart-container {
+    position: relative;
+    height: 300px;
+    margin-bottom: 20px;
+}
+
+.tag-cloud {
+    padding: 20px;
+    border-radius: 8px;
+    background-color: #fff;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.platform-filter, .keyword-filter {
+    margin-bottom: 20px;
+}
+
+.news-item {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.news-item:last-child {
+    border-bottom: none;
+}
+
+.news-item .news-title {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.news-item .news-meta {
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+.news-item .news-platform {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    margin-right: 5px;
+}
+
+.news-item .platform-tencent {
+    background-color: #e6f7ff;
+    color: #1890ff;
+}
+
+.news-item .platform-toutiao {
+    background-color: #fff7e6;
+    color: #fa8c16;
+}
+
+.news-item .platform-weixin {
+    background-color: #e6fffb;
+    color: #13c2c2;
+}
+
+.news-item .platform-weibo {
+    background-color: #fff1f0;
+    color: #f5222d;
+}
+
+.sentiment-positive {
+    color: #28a745;
+}
+
+.sentiment-neutral {
+    color: #6c757d;
+}
+
+.sentiment-negative {
+    color: #dc3545;
+}
+
+.footer {
+    margin-top: 50px;
+    padding: 20px 0;
+    background-color: #f8f9fa;
+    border-top: 1px solid #e9ecef;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .stat-card .stat-value {
+        font-size: 2rem;
+    }
+    
+    .chart-container {
+        height: 250px;
+    }
+}

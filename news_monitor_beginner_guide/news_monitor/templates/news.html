@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2>新闻抓取</h2>
+        <p>选择关键词和平台，开始抓取新闻数据</p>
+    </div>
+</div>
+
+<div class="row mt-3">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">抓取设置</div>
+            <div class="card-body">
+                <form id="crawlForm" action="/news/crawl" method="post">
+                    <div class="mb-3">
+                        <label for="keywordSelect" class="form-label">选择关键词</label>
+                        <select class="form-select" id="keywordSelect" name="keyword" required>
+                            <option value="">请选择关键词</option>
+                            {% for keyword in keywords %}
+                            <option value="{{ keyword.keyword }}">{{ keyword.keyword }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">选择平台</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="platforms" value="tencent" id="platform_tencent">
+                            <label class="form-check-label" for="platform_tencent">腾讯新闻</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="platforms" value="toutiao" id="platform_toutiao">
+                            <label class="form-check-label" for="platform_toutiao">今日头条</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="platforms" value="weixin" id="platform_weixin">
+                            <label class="form-check-label" for="platform_weixin">微信公众号</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="platforms" value="weibo" id="platform_weibo">
+                            <label class="form-check-label" for="platform_weibo">微博</label>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="limitPerPlatform" class="form-label">每个平台抓取数量</label>
+                        <input type="number" class="form-control" id="limitPerPlatform" name="limit_per_platform" value="10" min="1" max="50">
+                    </div>
+                    
+                    <button type="button" class="btn btn-primary" onclick="startCrawling()">开始抓取</button>
+                    <div id="loadingIndicator" class="mt-3 d-none">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <span class="ms-2">正在抓取数据，请稍候...</span>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">抓取结果</div>
+            <div class="card-body">
+                {% if crawl_result %}
+                <div class="alert alert-success">
+                    <h5>抓取完成！</h5>
+                    <p>共抓取 {{ crawl_result.total_count }} 条新闻数据</p>
+                    <ul>
+                        {% for platform, count in crawl_result.platform_counts.items() %}
+                        <li>{{ platform }}: {{ count }} 条</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                
+                <h5 class="mt-4">最新抓取的新闻</h5>
+                <div class="list-group">
+                    {% for news in crawl_result.latest_news %}
+                    <div class="list-group-item">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">{{ news.title }}</h5>
+                            <small>{{ news.publish_time }}</small>
+                        </div>
+                        <p class="mb-1">{{ news.summary }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small>
+                                <span class="badge bg-primary">{{ news.platform }}</span>
+                                {% if news.tags %}
+                                {% for tag in news.tags %}
+                                <span class="badge bg-secondary">{{ tag }}</span>
+                                {% endfor %}
+                                {% endif %}
+                            </small>
+                            <div>
+                                <small class="text-muted me-2">
+                                    <i class="bi bi-eye"></i> {{ news.read_count }}
+                                </small>
+                                <small class="text-muted me-2">
+                                    <i class="bi bi-chat"></i> {{ news.comment_count }}
+                                </small>
+                                <small class="text-muted">
+                                    <i class="bi bi-hand-thumbs-up"></i> {{ news.like_count }}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <div class="mt-3">
+                    <a href="/analysis?keyword={{ crawl_result.keyword }}" class="btn btn-success">查看舆情分析</a>
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    请选择关键词和平台，点击"开始抓取"按钮开始抓取新闻数据。
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function startCrawling() {
+        // 检查是否选择了关键词和平台
+        const keywordSelect = document.getElementById('keywordSelect');
+        const platformChecks = document.querySelectorAll('input[name="platforms"]:checked');
+        
+        if (keywordSelect.value === '') {
+            alert('请选择关键词');
+            return;
+        }
+        
+        if (platformChecks.length === 0) {
+            alert('请至少选择一个平台');
+            return;
+        }
+        
+        // 显示加载提示
+        document.getElementById('loadingIndicator').classList.remove('d-none');
+        
+        // 提交表单
+        document.getElementById('crawlForm').submit();
+    }
+</script>
+{% endblock %}
